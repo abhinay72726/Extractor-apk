@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="horizontal" android:id="@id/outerLinear" android:background="@color/linearHighlight" android:paddingLeft="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="5.0dp">
+        <LinearLayout android:orientation="vertical" android:id="@id/barLinear" android:background="@color/primaryColor" android:padding="8.0dp" android:layout_width="8.0dp" android:layout_height="match_parent" android:layout_marginTop="10.0dp" android:layout_marginBottom="10.0dp" />
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear1" android:padding="16.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/textPrimary" android:id="@id/textTitle" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PYQ Practice Sheet || Only PDF" android:layout_weight="1.0" />
+            <ImageView android:id="@id/imageview1" android:focusable="false" android:layout_width="35.0dp" android:layout_height="35.0dp" android:src="@drawable/ic_navigate_next_black" android:scaleType="fitCenter" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="horizontal" android:id="@id/outerLinear" android:background="@color/linearHighlight" android:paddingLeft="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="5.0dp">
+        <LinearLayout android:orientation="vertical" android:id="@id/barLinear" android:background="@color/primaryColor" android:padding="8.0dp" android:layout_width="8.0dp" android:layout_height="match_parent" android:layout_marginTop="10.0dp" android:layout_marginBottom="10.0dp" />
+        <LinearLayout android:orientation="vertical" android:id="@id/linear1" android:padding="16.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/textPrimary" android:id="@id/textTitle" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PYQ Practice Sheet || Only PDF" />
+            <LinearLayout android:gravity="start" android:orientation="horizontal" android:id="@id/linear2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dp" android:weightSum="3.0">
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/videoLinear" android:padding="5.0dp" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="5.0dp" android:layout_marginRight="5.0dp" android:layout_weight="1.0">
+                    <ImageView android:id="@id/imageview1" android:focusable="false" android:layout_width="20.0dp" android:layout_height="20.0dp" android:src="@drawable/movie_24px" android:scaleType="fitCenter" />
+                    <TextView android:textSize="12.0sp" android:textColor="@color/textSecondary" android:ellipsize="end" android:id="@id/textVideos" android:paddingLeft="5.0dp" android:paddingRight="5.0dp" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 Videos" android:maxLines="1" />
+                </LinearLayout>
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/exerciseLinear" android:padding="5.0dp" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="5.0dp" android:layout_marginRight="5.0dp" android:layout_weight="1.0">
+                    <ImageView android:id="@id/imageview2" android:focusable="false" android:layout_width="20.0dp" android:layout_height="20.0dp" android:src="@drawable/format_list_bulleted_add_24px" android:scaleType="fitCenter" />
+                    <TextView android:textSize="12.0sp" android:textColor="@color/textSecondary" android:ellipsize="end" android:id="@id/textExercises" android:paddingLeft="5.0dp" android:paddingRight="5.0dp" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 Exercises" android:maxLines="1" />
+                </LinearLayout>
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/notesLinear" android:padding="5.0dp" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_marginLeft="5.0dp" android:layout_marginRight="5.0dp" android:layout_weight="1.0">
+                    <ImageView android:id="@id/imageview3" android:focusable="false" android:layout_width="20.0dp" android:layout_height="20.0dp" android:src="@drawable/event_note_24px" android:scaleType="fitCenter" />
+                    <TextView android:textSize="12.0sp" android:textColor="@color/textSecondary" android:ellipsize="end" android:id="@id/textNotes" android:paddingLeft="5.0dp" android:paddingRight="5.0dp" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="34 Notes" android:maxLines="1" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

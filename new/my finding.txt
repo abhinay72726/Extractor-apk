@@ -1,0 +1,933 @@
+
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║         FULL REVERSE ENGINEERING REPORT                        ║
+║         APK  : CareerWill_v15.21.06_by_TheMadXABhi_1774931167036.apk           ║
+║         Size : ~23 MB  |  Analyzed : March 31, 2026                             ║
+╚══════════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                         ★ RESUME PROMPT (READ FIRST) ★
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  COPY AND PASTE THIS EXACT PROMPT NEXT TIME TO RESUME FROM WHERE WE LEFT OFF:
+  ─────────────────────────────────────────────────────────────────────────────
+
+  "I have already done a full APK reverse-engineering of the CareerWill app
+  (CareerWill_v15.21.06_by_TheMadXABhi_1774931167036.apk). Full findings are
+  saved in attached_assets/CareerWill_APK_Analysis.txt — please read that file
+  first to understand everything that was already discovered.
+
+  Summary of what is already known:
+  - APK package: com.careerwillapp.ABhi
+  - String obfuscation: Base64 + XOR with key 'UTF-8' (decoder in section 1)
+  - App config URL: https://abhiguru143.github.io/asmultiverse/app.json
+  - API base URL: https://core.asmultiverse.app
+  - Auth headers: Authorization: Bearer {tok}, cwkey, authKey
+  - Video CDN: Brightcove account 6206459123001
+  - Decompilation was done with jadx 1.2.0 (commands in section 14)
+  - All known endpoints, JSON fields, auth flow are documented in that file
+
+  What is still UNKNOWN and needs to be figured out next:
+  1. The exact {apiVersion} string (e.g., v1, v2, v3)
+  2. The exact value of cwkey header
+  3. The full list of available batch IDs and their course names
+  4. Whether the API requires device fingerprinting or rate limits requests
+  5. The exact JSON structure of the /homeApi and /startapi responses
+  6. Any endpoints beyond what was found (notes download, search, etc.)
+
+  My login token is: [PASTE YOUR TOKEN HERE]
+
+  Please continue from where we left off. Start by fetching the live config
+  to confirm the API base URL, then try the verify-token endpoint with my token,
+  then explore the available courses/batches."
+
+  ─────────────────────────────────────────────────────────────────────────────
+  (End of resume prompt — everything below is the full technical analysis)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 — APK IDENTITY & OBFUSCATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Package Name     : com.careerwillapp.ABhi
+  Application Class: com.careerwillapp.ABhi.MadxABhiApp
+  Modified By      : TheMadXABhi / ABhi (community build)
+  APK Signing Key  : TESTKEY (META-INF/TESTKEY.SF, TESTKEY.RSA) — self-signed
+  DEX files        : classes.dex, classes2.dex ... classes9.dex (9 total)
+  Assets folder    : fonts (Roboto family), Lottie JSON animations
+  Obfuscation tool : StringFog (a common Android string obfuscation library)
+  Obfuscated pkg   : qgrapx (all helper/network classes are here, renamed)
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  STRING OBFUSCATION — HOW IT WORKS                                      │
+  └─────────────────────────────────────────────────────────────────────────┘
+  Every sensitive string in the app (URLs, keys, JSON field names, messages)
+  is stored as an obfuscated Base64 string and decoded at runtime.
+
+  Encryption method (2 steps):
+    Step 1: XOR the plaintext bytes with the key "UTF-8" (cycling)
+    Step 2: Base64 encode the result (no-wrap, flag=2)
+
+  Decryption method (reverse):
+    Step 1: Base64 decode (no-wrap)
+    Step 2: XOR each byte with "UTF-8" key (cycling)
+    Step 3: Decode as UTF-8 string
+
+  Decryptor class in APK: qgrapx.C0320 (original class name: StringFogImpl)
+  Decryptor method      : public static String m2766(String encoded)
+
+  ► Full source of C0320.java (decompiled):
+  ─────────────────────────────────────────
+  package qgrapx;
+  import android.util.Base64;
+  import java.io.UnsupportedEncodingException;
+
+  public final class C0320 {
+      public static String m2766(String str) {
+          return new C0320().m2767(str, "UTF-8");
+      }
+      public String m2767(String str, String str2) {
+          try {
+              return new String(m2765(Base64.decode(str, 2), str2), "UTF-8");
+          } catch (UnsupportedEncodingException unused) {
+              return new String(m2765(Base64.decode(str, 2), str2));
+          }
+      }
+      private static byte[] m2765(byte[] bArr, String str) {
+          int length = bArr.length;
+          int length2 = str.length();
+          int i = 0, i2 = 0;
+          while (i < length) {
+              if (i2 >= length2) i2 = 0;
+              bArr[i] = (byte) (bArr[i] ^ str.charAt(i2));
+              i++; i2++;
+          }
+          return bArr;
+      }
+  }
+  ─────────────────────────────────────────
+
+  ► Node.js decoder (use this to decode any string from the APK):
+  ────────────────────────────────────────────────────────────────
+  function decode(encoded, key='UTF-8') {
+    const decoded = Buffer.from(encoded, 'base64');
+    const result  = Buffer.alloc(decoded.length);
+    for (let i = 0; i < decoded.length; i++) {
+      result[i] = decoded[i] ^ key.charCodeAt(i % key.length);
+    }
+    return result.toString('utf8');
+  }
+
+  // Example:
+  console.log(decode("PSAyXUtve2k="));   // => "https://"
+  console.log(decode("ejU2RBc="));        // => "/api/"
+  console.log(decode("EhES"));            // => "GET"
+  ────────────────────────────────────────────────────────────────
+
+  ► To bulk-decode all strings from source files:
+    grep -roh 'm2766("[^"]*")' /tmp/apk_decompiled/sources/ \
+      | grep -oP '"[^"]*"' | sort -u | tr -d '"' > /tmp/all_encoded.txt
+
+    node -e "
+    const fs=require('fs');
+    function decode(e,k='UTF-8'){
+      const d=Buffer.from(e,'base64'),r=Buffer.alloc(d.length);
+      for(let i=0;i<d.length;i++) r[i]=d[i]^k.charCodeAt(i%k.length);
+      return r.toString('utf8');
+    }
+    fs.readFileSync('/tmp/all_encoded.txt','utf8').trim().split('\n')
+      .forEach(l=>console.log(l.padEnd(50),'=>',decode(l)));
+    "
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — ALL APP SCREENS (ACTIVITIES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Full class path prefix: com.careerwillapp.ABhi
+
+  ┌─────────────────────────────┬────────────────────────────────────────────────┐
+  │ Activity Class              │ Purpose                                        │
+  ├─────────────────────────────┼────────────────────────────────────────────────┤
+  │ MainActivity                │ App entry point / splash screen / router       │
+  │ HomeActivity                │ Main home dashboard — shows course batches     │
+  │ SigninActivity              │ Login screen — accepts JWT token input         │
+  │ AuthVerifyActivity          │ Verifies token against server after login      │
+  │ BatchChaptersActivity       │ Shows chapters/subjects inside a batch         │
+  │ ExtractBatchesActivity      │ Dev tool — extracts all batch data as text log │
+  │ GetchapterActivity          │ Fetches data for a single chapter              │
+  │ LecturesActivity            │ List of video lectures in a chapter/topic      │
+  │ PlayerActivity              │ Full-screen video player (Brightcove/VDOCrypt) │
+  │ NotesActivity               │ PDF notes for a lecture or chapter             │
+  │ SearchActivity              │ Search courses and lectures                    │
+  │ PhysicsActivity             │ Subject-specific screen (Physics subject)      │
+  │ SettingsActivity            │ App settings (theme, token, cache)             │
+  │ ExpiredActivity             │ Shown when subscription/token is expired       │
+  │ DebugActivity               │ Developer debug console / log viewer           │
+  │ FCMService                  │ Firebase Cloud Messaging push notifications    │
+  └─────────────────────────────┴────────────────────────────────────────────────┘
+
+  Layout files (in res/layout/):
+    - home.xml              (HomeActivity layout)
+    - extract_batches.xml   (ExtractBatchesActivity layout)
+    - custom_dialog.xml     (Loading dialog with Lottie animation)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 — STARTUP CONFIG & LIVE API BASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  On every launch, before doing anything else, the app fetches its configuration
+  from a GitHub Pages URL. This is how the developer can change the API server
+  without pushing a new APK update.
+
+  Config URL : https://abhiguru143.github.io/asmultiverse/app.json
+  Auth needed: None (public endpoint)
+  Method     : GET
+
+  ► Live response (captured March 31, 2026):
+  ────────────────────────────────────────────
+  {
+    "status": 200,
+    "message": "Success",
+    "data": {
+      "api": "https://core.asmultiverse.app"
+    },
+    "success": true
+  }
+  ────────────────────────────────────────────
+
+  The field  data.api  is the API base. Store this; do not hardcode.
+  The URL https://core.asmultiverse.app IS THE LIVE API BASE as of analysis date.
+
+  ► How to fetch it fresh:
+    curl -s https://abhiguru143.github.io/asmultiverse/app.json | node -e \
+      "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>console.log(JSON.parse(d).data.api))"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 — API STRUCTURE & ENDPOINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  API Base   : https://core.asmultiverse.app
+  API Prefix : /api/{apiVersion}/
+  Full Base  : https://core.asmultiverse.app/api/{apiVersion}/
+
+  ⚠ {apiVersion} is UNKNOWN — needs to be discovered (v1, v2, or similar).
+    It is stored in SharedPreferences under key "apiVersion" after first login.
+    Try v1 first, then v2.
+
+  ┌────────────┬─────────────────────────────────────────┬────────────────────────────────────────┐
+  │ Method     │ Endpoint                                │ Description                            │
+  ├────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ POST       │ /login-token                            │ Authenticate using a JWT token         │
+  │ GET        │ /verify-token                           │ Verify current token is still valid    │
+  │ GET        │ /batch-topic/{batchId}?type=class       │ Get all topics in a course batch       │
+  │ GET        │ {homeApi}  (dynamic URL from server)    │ Home screen data — list of all batches │
+  │ GET        │ {startapi} (dynamic URL from server)    │ App startup config / announcements     │
+  │ GET        │ {genRoutes}(dynamic URL from server)    │ Generate route list                    │
+  │ GET        │ {apiRoutes}(dynamic URL from server)    │ Available API routes config            │
+  │ GET        │ {downloadApi}(dynamic URL from server)  │ Notes / PDF download endpoint          │
+  └────────────┴─────────────────────────────────────────┴────────────────────────────────────────┘
+
+  NOTE: homeApi, startapi, genRoutes, apiRoutes, downloadApi are NOT hardcoded paths.
+  They are full URLs received from the server after login and cached in SharedPreferences.
+  Their exact paths must be discovered by intercepting a real login session (see Section 10).
+
+  ► URL construction for batch-topic (decoded from source):
+    "https://" + apiHost + "/api/" + apiVersion + "/batch-topic/" + batchId + "?type=class"
+
+  This was found in qgrapx/C0086.java (FetchBatch class), method m2467():
+    m2466(
+      decode("PSAyXUtve2k=")     +  str          +   // "https://"   + apiHost
+      decode("ejU2RBc=")         +  str2          +  // "/api/"      + apiVersion
+      decode("ejYnWVs9eTJCSDw3aQ==") + obj      +   // "/batch-topic/" + batchId
+      decode("aiA/XV1oNypMSyY="),                    // "?type=class"
+      hashMap2, activity, callback
+    );
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 — AUTHENTICATION SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Auth Type  : JWT Bearer Token
+  Token Field: "tok" (in SharedPreferences and API responses)
+  Token Format: Standard JWT — 3 parts separated by dots (header.payload.signature)
+  Validation : App checks locally first — must have exactly 2 dots to be valid
+  Error msg  : "Invalid token format. Please enter a correct JWT token."
+
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  SHAREDPREFERENCES STORAGE (what the app saves after login)                 │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  SharedPreferences file name (decoded): "4"   (just the character 4)
+
+  Key       │ Decoded Value  │ Description
+  ──────────┼────────────────┼──────────────────────────────────────────────────
+  tok       │ tok            │ Your JWT auth token (main credential)
+  cwkey     │ cwkey          │ CareerWill API key (sent as header)
+  authKey   │ authKey        │ Secondary auth key
+  apiHost   │ apiHost        │ API domain (e.g., core.asmultiverse.app)
+  apiVersion│ apiVersion     │ API version string (e.g., v1)
+  downloadApi│ downloadApi   │ Full URL for download/notes endpoint
+  appVer    │ appVer         │ App version string sent with requests
+  startapi  │ startapi       │ Full URL for startup API
+  homeApi   │ homeApi        │ Full URL for home screen data API
+  apiRoutes │ apiRoutes      │ Full URL for API routes discovery
+
+  Another SharedPreferences file (encoded "MTUyTA==" = "data") stores
+  the current batch object as JSON. Fields include: id, batchName, etc.
+
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  HTTP REQUEST HEADERS (sent with every API call)                            │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  Header Name    │ Value
+  ───────────────┼────────────────────────────────────────────────────────────
+  Authorization  │ Bearer {tok}
+  cwkey          │ {cwkey value from SharedPrefs}
+  authKey        │ {authKey value from SharedPrefs}
+  useragent      │ {device user-agent string}
+  referer        │ {origin URL}
+  origin         │{origin URL}
+  cookie         │ {session cookie if present}
+  appVer         │ {app version string}
+
+  Header builder found in: qgrapx/C0103.java, method m2477(apiHost, tok, appVer, cwkey)
+  This method returns a HashMap<String, Object> of all headers for the request.
+
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  LOGIN FLOW (step by step)                                                  │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  1. User opens SigninActivity — enters JWT token in a text field
+  2. App locally validates: token must contain exactly 2 dots (valid JWT format)
+  3. App calls POST /login-token with the token
+  4. Server responds with user data + all the stored keys (apiVersion, cwkey, etc.)
+  5. App saves all keys into SharedPreferences file "4"
+  6. App navigates to HomeActivity
+  7. If token is expired/invalid → ExpiredActivity is shown
+
+  Key classes involved:
+    - com.careerwillapp.ABhi.SigninActivity     (UI, input)
+    - com.careerwillapp.ABhi.AuthVerifyActivity (post-login verification)
+    - qgrapx.C0298 / C0299 / C0304 / C0305    (login network helpers)
+    - qgrapx.C0207                              (HTTP client or request handler)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6 — VIDEO / CONTENT DELIVERY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  The app supports 6 different video/content types. The type is determined by
+  the "videoType" field in each lecture's JSON object.
+
+  ┌──────────────┬────────────────────────────────────────────────────────────────┐
+  │ videoType    │ Description & URL Format                                       │
+  ├──────────────┼────────────────────────────────────────────────────────────────┤
+  │ (default)    │ BRIGHTCOVE — main video platform                               │
+  │              │ URL: https://edge.api.brightcove.com/playback/v1/              │
+  │              │      accounts/6206459123001/videos/{VIDEO_ID}                  │
+  │              │      /master.m3u8?bcov_auth={JWT_TOKEN}                        │
+  │              │ Account ID: 6206459123001 (hardcoded in APK)                   │
+  │              │ The JWT in bcov_auth comes from the lecture's "token" field     │
+  ├──────────────┼────────────────────────────────────────────────────────────────┤
+  │ vdocrypt     │ VdoCipher DRM-protected video                                  │
+  │              │ Uses VdoCipher Android SDK for playback                        │
+  │              │ OTP + playbackInfo obtained from API                           │
+  ├──────────────┼────────────────────────────────────────────────────────────────┤
+  │ widevine     │ Google Widevine DRM (L1/L3)                                    │
+  │              │ Standard MPEG-DASH + Widevine license server                   │
+  ├──────────────┼────────────────────────────────────────────────────────────────┤
+  │ playready    │ Microsoft PlayReady DRM                                        │
+  │              │ Standard MPEG-DASH + PlayReady license server                  │
+  ├──────────────┼────────────────────────────────────────────────────────────────┤
+  │ clearkey     │ HLS AES-128 with clearkey                                      │
+  │              │ Key format: {"keys":[{"kty":"oct","k":"BASE64_KEY_HERE"}]}     │
+  ├──────────────┼────────────────────────────────────────────────────────────────┤
+  │ yt           │ YouTube video                                                  │
+  │              │ URL: https://youtu.be/{VIDEO_ID}                               │
+  └──────────────┴────────────────────────────────────────────────────────────────┘
+
+  ► Brightcove URL construction (decoded from qgrapx/C0086.java):
+    "https://edge.api.brightcove.com/playback/v1/accounts/6206459123001/videos/"
+    + videoId
+    + "/master.m3u8?bcov_auth="
+    + lecture["token"]   ← this is the per-lecture JWT, NOT the user's main token
+
+  NOTE: The Brightcove JWT (bcov_auth) is different from the user's login JWT.
+  Each lecture has its own "token" field in the API response used specifically
+  for Brightcove authentication.
+
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  NOTES / PDF CONTENT                                                        │
+  └─────────────────────────────────────────────────────────────────────────────┘
+  Notes are fetched via {downloadApi} — the exact URL is dynamic (set by server).
+  Notes JSON fields: notes, notes_count, notesDetails, notesList
+  Each note has: title, url, lessonUrl, lessonExt (file extension), lessonName
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 7 — COMPLETE JSON DATA SCHEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  All field names decoded from 573 obfuscated strings found in the source.
+
+  ► TOP-LEVEL API RESPONSE WRAPPER:
+    {
+      "data"            : { ... }   or  [ ... ]
+      "success"         : true/false
+      "status"          : 200 / 400 / 401 / ...
+      "message"         : "Success" / error message
+      "responseCode"    : numeric code
+      "responseMessage" : human-readable message
+    }
+
+  ► BATCH / COURSE OBJECT:
+    {
+      "id"              : "batch unique ID",
+      "batchId"         : "same as id or different key",
+      "batchName"       : "Full Course / Batch Name",
+      "name"            : "short name",
+      "title"           : "display title",
+      "image"           : "thumbnail URL",
+      "imageUrl"        : "alternate image URL",
+      "isPaid"          : true / false,
+      "subjectId"       : "subject identifier",
+      "subjectList"     : [ ... ]
+    }
+
+  ► BATCH TOPIC RESPONSE (from /batch-topic/{id}?type=class):
+    {
+      "data": {
+        "batch_topic": [
+          {
+            "id"        : "topic ID",
+            "topicId"   : "topic ID (alternate key)",
+            "topicName" : "Topic / Chapter Name",
+            "title"     : "display title"
+          },
+          ...
+        ]
+      }
+    }
+
+  ► LECTURE OBJECT (inside each topic):
+    {
+      "id"            : "lecture ID",
+      "title"         : "Lecture Title",
+      "title1"        : "alternate title 1",
+      "title2"        : "alternate title 2",
+      "title3"        : "alternate title 3",
+      "title4"        : "alternate title 4",
+      "title5"        : "alternate title 5",
+      "thumb1"        : "thumbnail 1 URL",
+      "thumb2"        : "thumbnail 2 URL",
+      "thumb3"        : "thumbnail 3 URL",
+      "thumb4"        : "thumbnail 4 URL",
+      "thumb5"        : "thumbnail 5 URL",
+      "link1"         : "content link 1",
+      "link2"         : "content link 2",
+      "link3"         : "content link 3",
+      "link4"         : "content link 4",
+      "link5"         : "content link 5",
+      "icon1"         : "icon 1",
+      "icon2"         : "icon 2",
+      "icon3"         : "icon 3",
+      "icon4"         : "icon 4",
+      "icon5"         : "icon 5",
+      "videoType"     : "vdocrypt" / "widevine" / "clearkey" / "yt" / (default=brightcove),
+      "token"         : "Brightcove JWT for this specific video",
+      "timeDuration"  : "HH:MM:SS",
+      "publishedAt"   : "date string",
+      "isLive"        : true / false,
+      "isProcessing"  : true / false,
+      "lessonUrl"     : "direct content URL",
+      "lessonExt"     : "mp4 / pdf / ...",
+      "lessonName"    : "file name",
+      "posterUrl"     : "video poster image URL",
+      "liveLink"      : "live stream URL",
+      "liveDataLink"  : "live data endpoint URL"
+    }
+
+  ► USER / AUTH OBJECT (from login response):
+    {
+      "tok"           : "user JWT token",
+      "token"         : "alternate token key",
+      "pToken"        : "push notification token",
+      "userid"        : "user ID",
+      "usertype"      : "user type / role",
+      "email"         : "user email",
+      "name"          : "user full name",
+      "image"         : "user avatar URL",
+      "deviceToken"   : "FCM device token",
+      "deviceVersion" : "Android version",
+      "deviceModel"   : "device model name",
+      "android_id"    : "Android device ID",
+      "random_id"     : "random identifier",
+      "extraData"     : "extra payload",
+      "extraDataValue": "extra payload value"
+    }
+
+  ► ANNOUNCEMENT OBJECT (from startapi response):
+    {
+      "announcementTitle"      : "Announcement heading",
+      "announcementDescription": "Full announcement text",
+      "announcementImage"      : "Banner image URL",
+      "announcementButton"     : "Button label / URL",
+      "announcementVisible"    : true / false
+    }
+
+  ► NOTES OBJECT:
+    {
+      "notes"       : "notes content or URL",
+      "notes_count" : 5,
+      "notesDetails": { ... },
+      "notesList"   : [ ... ]
+    }
+
+  ► HISTORY / FAV OBJECT:
+    {
+      "history"        : [ ... ],
+      "historyListView": [ ... ],
+      "fav"            : [ ... ],
+      "paidFavListView": [ ... ]
+    }
+
+  ► LIVE CLASS OBJECT:
+    {
+      "dataLive"   : { ... },
+      "isLive"     : true,
+      "liveLink"   : "RTMP or HLS live URL",
+      "liveDataLink": "metadata URL",
+      "startDateTime": "ISO date string"
+    }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 8 — COMPLETE DECODED STRING TABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  All meaningful strings decoded from 573 obfuscated entries (sorted by category):
+
+  ► API / URL STRINGS:
+    Encoded                                    Decoded
+    ─────────────────────────────────────────  ──────────────────────────────────────────────────
+    PSAyXUtve2k=                               https://
+    ejU2RBc=                                   /api/
+    ejYnWVs9eTJCSDw3aQ==                       /batch-topic/
+    aiA/XV1oNypMSyY=                           ?type=class
+    ejcxXVQ0LXlBUTs/ew==                       /cwplay?link=
+    /verify-token                              /verify-token
+    /login-token                               /login-token
+    PSAyXUtve2lIXDIxaExIPHokX1EyPDJOV...      https://edge.api.brightcove.com/playback/v1/accounts/6206459123001/videos/
+    ejknXkwwJmhACyBseU9bOiIZTE0hPHs=          /master.m3u8?bcov_auth=
+    EhES                                       GET
+    Bearer [space]                             Bearer (with trailing space)
+    https://web.careerwill.com/login           https://web.careerwill.com/login
+    https://web.careerwill.com/register        https://web.careerwill.com/register
+    https://abhiguru143.github.io/asmultiverse/app.json   (hardcoded config URL)
+    https://youtu.be/                          https://youtu.be/
+    https://play.google.com/store/apps/details?id=idm.internet.download.manager
+
+  ► JSON FIELD NAME STRINGS:
+    Encoded              Decoded
+    ───────────────────  ──────────────────────
+    MTUyTA==             data
+    NzUyTlAbNStI         batchName
+    NzUyTlAKICldUTY=     batch_topic
+    PDA=                 id
+    ITst                 tok
+    ITstSFY=             token
+    NCQ2e10n             appVer
+    NiMtSEE=             cwkey
+    NCQvZVcmIA==         apiHost
+    NCQve10nJy9CVg==     apiVersion
+    MTsxQ1Q6NSJsSDw=     downloadApi
+    (many more — see section 7 for full schema)
+
+  ► AUTH / KEY STRINGS:
+    Encoded              Decoded
+    ───────────────────  ──────────────────────
+    NCQ2e10n             appVer
+    NiMtSEE=             cwkey
+    NCQvZVcmIA==         apiHost
+    NCQve10nJy9CVg==     apiVersion
+    MTsxQ1Q6NSJsSDw=     downloadApi
+    ITst                 tok
+    authKey              authKey
+    useragent            useragent
+    referer              referer
+    origin               origin
+    cookie               cookie
+
+  ► UI / APP STRINGS:
+    Encoded                                                 Decoded
+    ──────────────────────────────────────────────────────  ──────────────────────────────────────────
+    AjEqTlc4MWZZV3UXEQ16NCAlRRgQLDJfWTYgKV8We3Vm3afb3Q==  Welcome to CW Batch Extractor..! 🎉
+    BjUrTFI9MCdfUXUnIw1RJiAjQFk5dC1MSjA9KAMWdHS2sqLVp...  Samajhdari se istemal karein..! 🚀😊
+    EzEyTlA8OiENWjQgJUUYITs2RFsmdCBfVzhuZg==               Fetching batch topics from:
+    BSYpTl0mJ2ZeTDokNkhcdTY/DU0mMTQD                       Process stopped by user.
+    Ez0oREs9MSINSCc7JUhLJj0oShg0OCoNTDokL05Le3poDcjK2s8=  Finished processing all topics... 🎉
+    ECY0QkpvdA==                                            Error:
+    DjwuF1U4bjVeGDQJ                                        [hh:mm:ss a]
+    dXlrExg=                                                 -->
+    fQ==                                                    (
+    fHQ=                                                    )
+    bw==                                                    :
+
+  ► VIDEO TYPE STRINGS:
+    vdocrypt, widevine, playready, clearkey, yt (all stored as plain strings in JSON)
+    {"keys":[{"kty":"oct","k":"..."  (clearkey format prefix — hardcoded)
+
+  ► DOWNLOAD MANAGER PACKAGE NAMES:
+    idm.internet.download.manager
+    idm.internet.download.manager.plus
+    idm.internet.download.manager.adm.lite
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 9 — NETWORK CALL IMPLEMENTATION DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Network library: Plain Java HttpURLConnection (NOT Retrofit, NOT OkHttp for main calls)
+  Note: OkHttp IS present in the APK (for image loading via Glide) but API calls use
+  HttpURLConnection directly.
+
+  Key network class: qgrapx.C0086  (original name: FetchBatch)
+
+  ► Full decompiled source of the HTTP call (qgrapx/C0086.java, method m2473):
+  ───────────────────────────────────────────────────────────────────────────────
+  private static void m2473(String url, HashMap headers, Activity activity, Callback cb) {
+      try {
+          HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+          conn.setRequestMethod("GET");   // decoded from "EhES"
+          for (Map.Entry entry : headers.entrySet()) {
+              conn.setRequestProperty((String) entry.getKey(), entry.getValue().toString());
+          }
+          BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+          StringBuilder sb = new StringBuilder();
+          String line;
+          while ((line = reader.readLine()) != null) {
+              sb.append(line);
+          }
+          reader.close();
+          // parse as JSONObject and call back on UI thread
+          activity.runOnUiThread(() -> cb.onResult(new JSONObject(sb.toString())));
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+  }
+  ───────────────────────────────────────────────────────────────────────────────
+
+  Threading model:
+  - Network call runs on: new Thread(...).start()
+  - Response parsed on: activity.runOnUiThread(...)
+  - Stop flag: static volatile boolean f654 (set by user clicking Stop button)
+
+  ► FULL BATCH EXTRACTION FLOW (ExtractBatchesActivity → C0086):
+  ───────────────────────────────────────────────────────────────
+  1. User opens ExtractBatchesActivity
+  2. App reads SharedPreferences (file "4"):
+       - tok       → user JWT
+       - cwkey     → API key
+       - apiHost   → e.g., core.asmultiverse.app
+       - apiVersion→ e.g., v1
+       - appVer    → app version
+       - downloadApi → full URL
+  3. Reads batch info from SharedPreferences (file "data"):
+       - batchId, batchName
+  4. Calls C0103.m2477(apiHost, tok, appVer, cwkey) → returns headers HashMap
+  5. Constructs URL:
+       "https://" + apiHost + "/api/" + apiVersion + "/batch-topic/" + batchId + "?type=class"
+  6. Makes GET request with headers
+  7. Parses: response["data"]["batch_topic"] → array of topics
+  8. For each topic (recursive loop via m2468 / m2474):
+       a. Fetches lecture list for that topic
+       b. For each lecture:
+            - Gets videoType, token, id
+            - Builds Brightcove URL if default type
+            - Appends to output log
+  9. On finish: calls AbstractC0076 callback → triggers save/export
+  ───────────────────────────────────────────────────────────────
+
+  ► EXTERNAL LIBRARIES IN APK:
+  - com.google.firebase        (Firebase messaging, analytics)
+  - com.google.android.gms     (Google Play Services)
+  - com.google.gson            (JSON parsing — Gson)
+  - com.airbnb.lottie          (Lottie animations)
+  - com.bumptech.glide         (Image loading)
+  - de.hdodenhof.circleimageview (Round profile images)
+  - okhttp3                    (HTTP — used by Glide, not main API)
+  - org.json                   (JSONObject/JSONArray — used for API parsing)
+  - androidx.*                 (All standard AndroidX libraries)
+  - ExoPlayer (media3)         (Video player — for Brightcove/HLS streams)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 10 — HOW TO USE WITH YOUR TOKEN (STEP BY STEP)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Prerequisites:
+  - Your JWT login token
+  - The cwkey value (unknown — need to capture from a real login session)
+  - curl or any HTTP client
+
+  ► STEP 1: Confirm live API base
+  ────────────────────────────────
+  curl -s https://abhiguru143.github.io/asmultiverse/app.json
+  Expected: { "data": { "api": "https://core.asmultiverse.app" } }
+
+  ► STEP 2: Try login-token (to discover apiVersion and get cwkey)
+  ──────────────────────────────────────────────────────────────────
+  # Try v1 first
+  curl -s -X POST "https://core.asmultiverse.app/api/v1/login-token" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+    -d '{"tok": "YOUR_TOKEN_HERE"}'
+
+  # If 404, try v2
+  curl -s -X POST "https://core.asmultiverse.app/api/v2/login-token" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+    -d '{"tok": "YOUR_TOKEN_HERE"}'
+
+  ► STEP 3: Verify token
+  ────────────────────────
+  curl -s "https://core.asmultiverse.app/api/{VERSION}/verify-token" \
+    -H "Authorization: Bearer YOUR_TOKEN" \
+    -H "cwkey: CWKEY_FROM_LOGIN_RESPONSE"
+
+  ► STEP 4: Fetch home data (course list)
+  ─────────────────────────────────────────
+  # homeApi URL comes from login response — use it directly
+  curl -s "{homeApi_URL_from_login}" \
+    -H "Authorization: Bearer YOUR_TOKEN" \
+    -H "cwkey: CWKEY"
+
+  ► STEP 5: Get batch topics for a specific course
+  ──────────────────────────────────────────────────
+  curl -s "https://core.asmultiverse.app/api/{VERSION}/batch-topic/{BATCH_ID}?type=class" \
+    -H "Authorization: Bearer YOUR_TOKEN" \
+    -H "cwkey: CWKEY"
+
+  ► STEP 6: Access video stream (Brightcove)
+  ────────────────────────────────────────────
+  # From lecture JSON: videoId = lecture["id"], bcov_auth = lecture["token"]
+  curl -s "https://edge.api.brightcove.com/playback/v1/accounts/6206459123001/videos/{VIDEO_ID}/master.m3u8?bcov_auth={LECTURE_TOKEN}"
+  # This gives you the HLS .m3u8 playlist — play with VLC or download segments
+
+  ► HOW TO FIND cwkey:
+  ─────────────────────
+  Option 1: Network intercept (best):
+    - Install mitmproxy on your PC: pip install mitmproxy
+    - Set your Android device/emulator to use your PC as proxy
+    - Open the CareerWill app, login
+    - mitmproxy will show all requests with full headers — copy the "cwkey" header value
+
+  Option 2: Root Android + read SharedPreferences:
+    - adb shell su
+    - cat /data/data/com.careerwillapp.ABhi/shared_prefs/4.xml
+    - Find the <string name="cwkey"> value
+
+  Option 3: Try common values (last resort):
+    - cwkey might be the package name, app version, or a static key
+    - Try: com.careerwillapp.ABhi, or the appVer string, or empty string
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 11 — WHAT IS STILL UNKNOWN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✗ Exact {apiVersion} value (v1? v2? v3?)
+  ✗ Exact value of cwkey header (critical — all requests need it)
+  ✗ Exact value of authKey header
+  ✗ Full list of batch IDs and their course names
+  ✗ Exact JSON structure of homeApi response (course list format)
+  ✗ Exact JSON structure of startapi response (announcements + config)
+  ✗ Exact path of homeApi, startapi, genRoutes, apiRoutes, downloadApi endpoints
+  ✗ Whether the API does device fingerprinting / checks device ID
+  ✗ Whether the API has rate limiting
+  ✗ Whether batch IDs are numeric, UUID, or some other format
+  ✗ How to get lecture list for a topic (what endpoint after batch-topic)
+  ✗ Search endpoint path and parameters
+  ✗ Notes/PDF download endpoint path and parameters
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 12 — WEB URLS & EXTERNAL SERVICES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Web Platform:
+    Login    : https://web.careerwill.com/login
+    Register : https://web.careerwill.com/register
+
+  App Configuration:
+    Config   : https://abhiguru143.github.io/asmultiverse/app.json
+
+  Video CDN:
+    Brightcove : https://edge.api.brightcove.com/playback/v1/accounts/6206459123001/
+    YouTube    : https://youtu.be/
+
+  Download Managers (apps the extractor checks for on device):
+    IDM        : idm.internet.download.manager
+    IDM+       : idm.internet.download.manager.plus
+    ADM Lite   : idm.internet.download.manager.adm.lite
+
+  Push Notifications:
+    Firebase Messaging (FCM) — class FCMService extends FirebaseMessagingService
+    FCM channel name (decoded): found in SigninActivity notification setup
+
+  Play Store (for IDM redirect):
+    https://play.google.com/store/apps/details?id=idm.internet.download.manager
+
+  Telegram (tg / tgdl fields present in JSON — suggest Telegram integration):
+    Fields: "tg", "tgdl" — likely Telegram group/channel links stored per batch
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 13 — APK FILE STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  APK is a ZIP file. Contents:
+
+  ├── AndroidManifest.xml          (binary XML — activities, permissions declared here)
+  ├── classes.dex                  (main app code)
+  ├── classes2.dex                 (ExoPlayer media library)
+  ├── classes3.dex                 (Gson, OkHttp, other libs)
+  ├── classes4.dex through classes9.dex (Google Play Services, Firebase, etc.)
+  ├── resources.arsc               (compiled binary resources — strings, colors, dimens)
+  ├── assets/
+  │   ├── 80356-online-learning.json   (Lottie animation — online learning graphic)
+  │   ├── anim2.json                   (Lottie animation)
+  │   ├── animation.json               (Lottie animation)
+  │   ├── empty.json                   (Lottie animation — empty state)
+  │   └── fonts/
+  │       └── roboto_*.ttf             (Full Roboto font family — all weights & styles)
+  ├── res/
+  │   ├── anim/                    (XML animations — ABC library animations)
+  │   ├── layout/                  (XML layouts — home.xml, extract_batches.xml, etc.)
+  │   ├── drawable/                (images and vector drawables)
+  │   └── ...
+  ├── okhttp3/internal/publicsuffix/publicsuffixes.gz
+  ├── META-INF/
+  │   ├── TESTKEY.SF               (self-signed — not Google Play signed)
+  │   ├── TESTKEY.RSA
+  │   └── MANIFEST.MF
+  ├── firebase-*.properties        (Firebase configuration files)
+  └── play-services-*.properties   (Google Play Services config)
+
+  Notable finding: TESTKEY signature means this APK was signed with a debug/test key,
+  confirming it's a community build and not the original Play Store release.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 14 — TOOLS, COMMANDS & HOW TO REPRODUCE THIS ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Tools used:
+  ┌───────────────┬─────────────┬─────────────────────────────────────────────────┐
+  │ Tool          │ Version     │ Purpose                                         │
+  ├───────────────┼─────────────┼─────────────────────────────────────────────────┤
+  │ unzip         │ 6.0         │ Extract APK contents (APK = ZIP)                │
+  │ jadx          │ 1.2.0       │ Decompile DEX bytecode → readable Java source   │
+  │ strings       │ GNU         │ Raw string extraction from binary DEX files      │
+  │ Node.js       │ 24          │ Decode XOR+Base64 obfuscated strings            │
+  │ curl          │ system      │ Fetch live app.json config from GitHub          │
+  │ grep / bash   │ system      │ Search decompiled source for patterns           │
+  └───────────────┴─────────────┴─────────────────────────────────────────────────┘
+
+  ► FULL REPRODUCTION COMMANDS (run these to redo the analysis):
+  ──────────────────────────────────────────────────────────────
+
+  # Install tools
+  nix-env -iA nixpkgs.unzip nixpkgs.jadx
+
+  # Extract APK (it's just a ZIP)
+  mkdir -p /tmp/apk_extracted
+  unzip -o attached_assets/CareerWill_*.apk -d /tmp/apk_extracted
+
+  # Decompile with jadx (skips resources, just gets Java source)
+  jadx -d /tmp/apk_decompiled --no-res attached_assets/CareerWill_*.apk
+
+  # List all CareerWill app Java files
+  find /tmp/apk_decompiled/sources/com/careerwillapp/ -name "*.java"
+
+  # List all helper classes (obfuscated as qgrapx)
+  ls /tmp/apk_decompiled/sources/qgrapx/ | wc -l   # → 350 classes
+
+  # Extract all obfuscated strings from source
+  grep -roh 'm2766("[^"]*")' /tmp/apk_decompiled/sources/ \
+    | grep -oP '"[^"]*"' | sort -u | tr -d '"' > /tmp/all_encoded.txt
+
+  # Decode all strings with Node.js
+  node -e "
+  const fs=require('fs');
+  function decode(e,k='UTF-8'){
+    const d=Buffer.from(e,'base64'),r=Buffer.alloc(d.length);
+    for(let i=0;i<d.length;i++) r[i]=d[i]^k.charCodeAt(i%k.length);
+    return r.toString('utf8');
+  }
+  fs.readFileSync('/tmp/all_encoded.txt','utf8').trim().split('\n')
+    .forEach(l=>console.log(l.padEnd(55),' => ',decode(l)));
+  "
+
+  # Decode a single specific string
+  node -e "console.log(Buffer.from('PSAyXUtve2k=','base64').map((b,i)=>b^'UTF-8'.charCodeAt(i%4)).toString())"
+
+  # Find URLs in raw DEX
+  strings /tmp/apk_extracted/classes*.dex | grep -E "https?://" | sort -u
+
+  # Fetch live API config
+  curl -s https://abhiguru143.github.io/asmultiverse/app.json
+
+  # Read a specific key source file
+  cat /tmp/apk_decompiled/sources/qgrapx/C0086.java   # FetchBatch (HTTP calls)
+  cat /tmp/apk_decompiled/sources/qgrapx/C0103.java   # Header builder
+  cat /tmp/apk_decompiled/sources/qgrapx/C0320.java   # String decoder
+  cat /tmp/apk_decompiled/sources/com/careerwillapp/ABhi/ExtractBatchesActivity.java
+  cat /tmp/apk_decompiled/sources/com/careerwillapp/ABhi/HomeActivity.java
+  cat /tmp/apk_decompiled/sources/com/careerwillapp/ABhi/SigninActivity.java
+
+  ► DECOMPILED SOURCE LOCATIONS:
+    App screens : /tmp/apk_decompiled/sources/com/careerwillapp/ABhi/
+    Helpers     : /tmp/apk_decompiled/sources/qgrapx/   (350 classes, mostly lambdas)
+    Libs        : /tmp/apk_decompiled/sources/com/google/, /tmp/apk_decompiled/sources/okhttp3/, etc.
+
+  NOTE: /tmp/ is cleared on session restart. Re-run extraction + decompilation
+  commands above when starting a new session.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 15 — SUGGESTED NEXT ACTIONS (PRIORITY ORDER)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Priority 1 — Discover apiVersion and cwkey:
+    → Use mitmproxy/Charles to intercept a real login from the app
+    → OR: Try the login-token endpoint with v1, v2, v3 until one works
+    → Once you get a valid response, you will have apiVersion + cwkey from
+      the JSON response body
+
+  Priority 2 — Map all available batch IDs:
+    → Call homeApi after login (URL will be in login response)
+    → Parse the course list to get all batchId values
+
+  Priority 3 — Read C0103.java fully:
+    → This class builds all request headers
+    → It will reveal exactly which headers are required and their exact names
+
+  Priority 4 — Build a course extractor script:
+    → Node.js or Python script that:
+      a) Fetches config from app.json
+      b) Logs in with your token
+      c) Gets course list
+      d) For each course, gets batch topics
+      e) For each topic, gets lectures
+      f) For each lecture, outputs Brightcove URL (ready to download)
+
+  Priority 5 — Explore the DebugActivity:
+    → This might expose extra dev/admin endpoints
+    → cat /tmp/apk_decompiled/sources/com/careerwillapp/ABhi/DebugActivity.java
+
+
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║  END OF REPORT  |  CareerWill APK Analysis  |  March 31, 2026                  ║
+╚══════════════════════════════════════════════════════════════════════════════════╝

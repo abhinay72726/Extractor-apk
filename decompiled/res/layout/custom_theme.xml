@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:id="@id/body" android:background="@color/background" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/linear2" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/imageview1" android:focusable="false" android:layout_width="40.0dp" android:layout_height="40.0dp" android:src="@drawable/palette_40px" android:scaleType="fitCenter" />
+            <TextView android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/textPrimary" android:id="@id/textview1" android:padding="8.0dp" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Change App Theme" />
+        </LinearLayout>
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear3" android:padding="5.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour1" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour2" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour3" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour4" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour5" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+        </LinearLayout>
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear10" android:padding="5.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour6" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour7" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour8" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour9" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour10" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+        </LinearLayout>
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear16" android:padding="5.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour11" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour12" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour13" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour14" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour15" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+        </LinearLayout>
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear22" android:padding="5.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour16" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour17" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour18" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/colour19" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_margin="5.0dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

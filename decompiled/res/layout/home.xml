@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:id="@id/body" android:background="@color/background" android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/topBar" android:background="@color/colorAccent" android:paddingLeft="16.0dp" android:paddingRight="16.0dp" android:layout_width="match_parent" android:layout_height="56.0dp">
+            <ImageView android:id="@id/menu_btn" android:padding="2.0dp" android:layout_width="30.0dp" android:layout_height="30.0dp" android:layout_marginRight="14.0dp" android:src="@drawable/lines_menu" android:scaleType="fitCenter" />
+            <TextView android:textSize="25.0sp" android:textStyle="bold" android:textColor="#ffffff" android:id="@id/app_name_bar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CAREER WiLL" />
+            <LinearLayout android:orientation="vertical" android:id="@id/topBarSpace" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="match_parent" android:layout_weight="1.0" />
+            <de.hdodenhof.circleimageview.CircleImageView android:id="@id/circleimageview1" android:layout_width="40.0dp" android:layout_height="40.0dp" android:src="@drawable/splash_logo" app:civ_border_color="@color/red" app:civ_border_overlay="true" app:civ_border_width="2.0dp" app:civ_circle_background_color="@color/red" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/spacelinear1" android:background="@color/linearHighlight" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="2.0dp" />
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear54" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear56" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/linear57" android:background="@color/linearHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="10.0dp" android:layout_marginTop="10.0dp" android:layout_marginRight="5.0dp" android:layout_marginBottom="10.0dp" android:layout_weight="1.0">
+                    <ImageView android:id="@id/imageview1" android:layout_width="18.0dp" android:layout_height="18.0dp" android:layout_marginLeft="10.0dp" android:src="@drawable/ic_search_white" android:scaleType="fitCenter" />
+                    <TextView android:textSize="16.0sp" android:textColor="@color/textPrimary" android:id="@id/textview1" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Search Here.... " android:layout_weight="1.0" />
+                </LinearLayout>
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/button1" android:background="#3d5afe" android:padding="5.0dp" android:layout_width="wrap_content" android:layout_height="55.0dp" android:layout_marginLeft="5.0dp" android:layout_marginTop="10.0dp" android:layout_marginRight="10.0dp" android:layout_marginBottom="10.0dp">
+                    <TextView android:textSize="16.0sp" android:textColor="#ffffff" android:id="@id/textview2" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="My Favourite" android:layout_weight="1.0" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/spacelinear2" android:background="@color/linearHighlight" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="2.0dp" />
+        <LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:id="@id/frame" android:layout_width="match_parent" android:layout_height="match_parent">
+            <LinearLayout android:orientation="vertical" android:id="@id/linear2" android:layout_width="match_parent" android:layout_height="match_parent">
+                <LinearLayout android:orientation="vertical" android:id="@id/linear3" android:layout_width="match_parent" android:layout_height="match_parent">
+                    <LinearLayout android:orientation="horizontal" android:id="@id/background" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_weight="1.0">
+                        <androidx.viewpager.widget.ViewPager android:id="@id/viewpager1" android:layout_width="match_parent" android:layout_height="match_parent" />
+                    </LinearLayout>
+                    <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@id/bottomnavigation1" android:layout_width="match_parent" android:layout_height="wrap_content" app:labelVisibilityMode="labeled" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:id="@id/body" android:background="@color/background" android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/searchBody" android:background="@color/background" android:layout_width="match_parent" android:layout_height="65.0dp">
+            <ImageView android:id="@id/imageview2" android:layout_width="30.0dp" android:layout_height="30.0dp" android:layout_marginLeft="10.0dp" android:src="@drawable/ic_arrow_back_white" android:scaleType="centerInside" />
+            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/searchBox" android:background="@color/linearHighlight" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="15.0dp" android:layout_marginTop="10.0dp" android:layout_marginRight="10.0dp" android:layout_marginBottom="10.0dp" android:layout_weight="1.0">
+                <ImageView android:id="@id/imageview1" android:layout_width="18.0dp" android:layout_height="18.0dp" android:layout_marginLeft="10.0dp" android:src="@drawable/ic_search_white" android:scaleType="fitCenter" />
+                <EditText android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/textPrimary" android:textColorHint="@color/textSecondary" android:gravity="center_vertical" android:id="@id/SuggestText" android:background="@android:color/transparent" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Search here (Min 3 letters)..." android:lines="1" android:layout_weight="1.0" android:imeOptions="actionDone" />
+            </LinearLayout>
+            <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/close_linear" android:layout_width="45.0dp" android:layout_height="match_parent" android:layout_marginTop="10.0dp" android:layout_marginRight="10.0dp" android:layout_marginBottom="10.0dp">
+                <ImageView android:id="@id/imageview3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/ic_clear_white" android:scaleType="centerInside" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/linear58" android:background="@color/linearHighlight" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="4.0dp" />
+        <ListView android:id="@id/SuggestList" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="match_parent" android:divider="@null" android:dividerHeight="0.0dp" android:choiceMode="none" />
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/emptyLinear" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="match_parent">
+            <TextView android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/textPrimary" android:gravity="center" android:id="@id/textview2" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Please write at least 3 characters to search...!!" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/_coordinator" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.google.android.material.appbar.AppBarLayout android:theme="@style/AppTheme.AppBarOverlay" android:id="@id/_app_bar" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <androidx.appcompat.widget.Toolbar android:id="@id/_toolbar" android:background="?colorPrimary" android:layout_width="match_parent" android:layout_height="?actionBarSize" app:popupTheme="@style/AppTheme.PopupOverlay" />
+    </com.google.android.material.appbar.AppBarLayout>
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <LinearLayout android:orientation="vertical" android:id="@id/logs_layout" android:layout_width="match_parent" android:layout_height="match_parent">
+            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/logs" android:layout_width="match_parent" android:layout_height="match_parent">
+                <androidx.core.widget.NestedScrollView android:id="@id/vscroll1" android:layout_width="match_parent" android:layout_height="match_parent">
+                    <HorizontalScrollView android:id="@id/hscroll2" android:layout_width="match_parent" android:layout_height="match_parent">
+                        <TextView android:textSize="12.0sp" android:textColor="@color/textPrimary" android:id="@id/log_textview" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="match_parent" />
+                    </HorizontalScrollView>
+                </androidx.core.widget.NestedScrollView>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton android:layout_gravity="right|bottom" android:id="@id/_fab" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16.0dp" android:text="Share Now" app:icon="@drawable/document" app:srcCompat="@drawable/document" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

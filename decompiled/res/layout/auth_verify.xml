@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:id="@id/body" android:background="@color/background" android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/topBar" android:background="@color/primaryColor" android:paddingLeft="16.0dp" android:paddingRight="16.0dp" android:layout_width="match_parent" android:layout_height="56.0dp">
+            <TextView android:textSize="25.0sp" android:textStyle="bold" android:textColor="#ffffff" android:id="@id/app_name_bar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/app_name" />
+            <LinearLayout android:orientation="vertical" android:id="@id/topBarSpace" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="match_parent" android:layout_weight="1.0" />
+            <ImageView android:id="@id/imageview2" android:layout_width="40.0dp" android:layout_height="40.0dp" android:src="@drawable/ic_youtube_logo" android:scaleType="fitCenter" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/linear15" android:background="@color/border" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="1.0dp" />
+        <ScrollView android:id="@id/vscroll1" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_weight="1.0">
+            <LinearLayout android:orientation="vertical" android:id="@id/linear2" android:paddingLeft="8.0dp" android:paddingTop="16.0dp" android:paddingRight="8.0dp" android:paddingBottom="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:orientation="vertical" android:id="@id/auth_linear1" android:background="@color/linearHighlight" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <LinearLayout android:orientation="horizontal" android:id="@id/linear12" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/auth_linear2" android:background="@color/border" android:padding="5.0dp" android:layout_width="wrap_content" android:layout_height="match_parent" android:layout_marginRight="8.0dp" android:layout_weight="1.0">
+                            <EditText android:textSize="16.0sp" android:textColor="@color/textPrimary" android:textColorHint="@color/textSecondary" android:id="@id/edittext1" android:background="@color/border" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Paste Auth Key here...." android:inputType="textCapCharacters" />
+                        </LinearLayout>
+                        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/paste_button" android:background="@color/onSurface" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                            <TextView android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/background" android:id="@id/textview2" android:padding="5.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Paste" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <LinearLayout android:orientation="horizontal" android:id="@id/linear13" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/activate_button" android:background="#6149eb" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                            <TextView android:textSize="16.0sp" android:textStyle="bold" android:textColor="#ffffff" android:id="@id/textview3" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Verify Auth Key" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:id="@id/boader_linear1" android:background="@color/border" android:layout_width="match_parent" android:layout_height="1.0dp" android:layout_marginTop="10.0dp" android:layout_marginBottom="10.0dp" />
+                <LinearLayout android:orientation="vertical" android:id="@id/auth_linear3" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <LinearLayout android:orientation="horizontal" android:id="@id/linear16" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/button" android:background="#10b981" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                            <TextView android:textSize="16.0sp" android:textStyle="bold" android:textColor="#ffffff" android:id="@id/textview7" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Generate Auth Key" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <LinearLayout android:orientation="horizontal" android:id="@id/linear17" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/button2" android:background="#f59e0b" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                            <TextView android:textSize="16.0sp" android:textStyle="bold" android:textColor="#ffffff" android:id="@id/textview8" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="How to Get Auth Key...!" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+        <LinearLayout android:orientation="horizontal" android:id="@id/how_to_linear" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8.0dp">
+            <TextView android:textSize="14.0sp" android:textColor="@color/textPrimary" android:id="@id/textview5" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="TextView" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

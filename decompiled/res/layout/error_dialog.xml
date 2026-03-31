@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/linear_main" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <ImageView android:id="@id/img_header" android:focusable="false" android:layout_width="80.0dp" android:layout_height="80.0dp" android:src="@drawable/ic_get_app_white" android:scaleType="fitCenter" android:translationY="22.0dp" />
+        <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/linear_bg" android:background="#ffffff" android:padding="20.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="30.0sp" android:textColor="#455a64" android:id="@id/txt_title" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="VPN Detected..!!" android:singleLine="true" />
+            <TextView android:textSize="16.0sp" android:textColor="#546e7a" android:gravity="center" android:id="@id/txt_msg" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="15.0dp" android:layout_marginBottom="20.0dp" android:text="Please disable your VPN temporarily in order to use the app smoothly..✅ :)" />
+            <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear1" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:orientation="vertical" android:id="@id/linear_div" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_weight="1.0" />
+                <Button android:textSize="16.0sp" android:textColor="#ffffff" android:id="@id/okay_button" android:background="#6149eb" android:layout_width="match_parent" android:layout_height="45.0dp" android:text="Exit..!! " android:layout_weight="1.0" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

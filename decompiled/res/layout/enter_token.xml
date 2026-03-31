@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:id="@id/linear1" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:gravity="center_horizontal" android:orientation="horizontal" android:id="@id/linear12" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="horizontal" android:id="@id/slide" android:background="#bdbdbd" android:padding="8.0dp" android:layout_width="50.0dp" android:layout_height="5.0dp" android:layout_marginBottom="25.0dp" />
+        </LinearLayout>
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/linear2" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/textPrimary" android:gravity="center" android:id="@id/title" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Enter Your Login Token" android:layout_weight="1.0" />
+        </LinearLayout>
+        <TextView android:textSize="12.0sp" android:textColor="#bdbdbd" android:ellipsize="end" android:gravity="center_horizontal" android:id="@id/subtitle" android:focusable="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5.0dp" android:layout_marginBottom="15.0dp" android:text="To complete your login, enter your unique token...!" android:singleLine="true" />
+        <com.google.android.material.textfield.TextInputLayout android:id="@id/textinputlayout4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="15.0dp" android:layout_marginRight="15.0dp" app:endIconMode="clear_text">
+            <com.google.android.material.textfield.TextInputEditText android:textSize="12.0sp" android:textColor="@color/textPrimary" android:textColorHint="#607d8b" android:ellipsize="end" android:id="@id/edittext1" android:focusable="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Enter your Valid Login Token" android:maxLines="5" android:imeOptions="actionDone" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/linear9" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="5.0dp" android:layout_marginTop="25.0dp" android:layout_marginRight="5.0dp" android:layout_marginBottom="10.0dp">
+            <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/cancel" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1.0">
+                <TextView android:textSize="14.0sp" android:textColor="#000000" android:id="@id/cancel_t" android:paddingLeft="12.0dp" android:paddingRight="12.0dp" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cancel" />
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical" android:id="@id/space_linear" android:layout_width="10.0dp" android:layout_height="match_parent" />
+            <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/select" android:padding="8.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1.0">
+                <TextView android:textSize="14.0sp" android:textColor="#ffffff" android:id="@id/select_t" android:paddingLeft="12.0dp" android:paddingRight="12.0dp" android:focusable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Submit" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
